@@ -2,49 +2,69 @@ import React, {Component} from 'react';
 import './App.css';
 
 class App extends Component {
-  render() {
-  return (
-    <div className="App">
-    <div className="container">
-    <h1>Perkiraan Cuaca Yogyakarta</h1>
-              <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th scope="col">Datetime</th>
-              <th scope="col">Temp</th>
-              <th scope="col">Temp Min</th>
-              <th scope="col">Temp Max</th>
-              <th scope="col">Weather</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">1</th>
-              <td>Mark</td>
-              <td>Otto</td>
-              <td>@mdo</td>
-              <td>@mdo</td>
-            </tr>
-            <tr>
-              <th scope="row">2</th>
-              <td>Jacob</td>
-              <td>Thornton</td>
-              <td>@fat</td>
-              <td>@mdo</td>
-            </tr>
-            <tr>
-              <th scope="row">3</th>
-              <td>Larry</td>
-              <td>the Bird</td>
-              <td>@twitter</td>
-              <td>@mdo</td>
-            </tr>
-          </tbody>
-        </table>
-        </div>
-    </div>
-  );
+
+    constructor(props) {
+      super(props);
+      this.state = {
+        items: []
+      };
+    }
+  
+    componentDidMount() {
+      fetch("https://api.openweathermap.org/data/2.5/forecast?q=Yogyakarta,id&mode=json&appid=181489c6dc5af05eae02784448eb19c1&units=metric")
+      .then(res => res.json())
+      .then(parsedJSON => parsedJSON.list.map(data => (
+        {
+          dateTime: `${data.dt_txt}` ,
+          temp: `${data.main.temp}` ,
+          tempMin: `${data.main.temp_min}` ,
+          tempMax: `${data.main.temp_max}` ,
+          weather: `${data.weather[0].main}` ,
+        }
+      )))
+      .then(items => this.setState({
+        items,
+        isLoaded: false
+      }))
+      .catch(error => console.log('parsing failed', error))
+    }
+  
+    render() {
+      const {items} = this.state;
+      return (
+        <div className="container">
+          <h1 className="text-center">Perkiraan Cuaca Yogyakarta</h1>
+        <table className="table table-bordered">
+					<thead>
+						<tr>
+							<th>Date Time</th>
+							<th>Temp</th>
+							<th>Temp Min</th>
+							<th>Temp Max</th>
+							<th>Weather</th>
+						</tr>
+					</thead>
+            <tbody>
+              {
+                items.length > 0 ? items.map(item => {
+                  const {dateTime, temp, tempMax, tempMin, weather} = item;
+                  return(
+                    <tr>
+                      <th>{dateTime}</th>
+                      <td>{temp}</td>
+                      <td>{tempMin}</td>
+                      <td>{tempMax}</td>
+                      <td>{weather}</td>
+                    </tr>
+                  );
+                }) : null
+              }
+            </tbody>
+          </table>
+          </div>          
+      );
+    }
   }
-}
+
 
 export default App;
